@@ -108,7 +108,7 @@ The full confusion matrix is pretty large, so I'm including only the top-10 of t
 Regarding **word spaces** the model detects them only 15% of the time and deletes them around 74% of the time. However **there is no such thing as a space character in ASL** so it is no surprise that the model performs poorly on this detection.
 Signers can use different means to indicate a word separator: they can make a short pause, or move the hand towards the right and make a pause, but very often they do nothing and just rely on their interlocutor to decode the sequence correctly.
 After viewing some of those sequences, I find that many of them have no pause to indicate a word separator, but the annotators inserted one in the label to make it readable.
-This annotation rule is debatable, but at least this provide a likely explanation for the poor performance on the dataset. A language model cannot help with this dataset because fingerspelling is mostly used for out of vocabulary words. Nevertheless, the model seems to do well when the signer makes a pause or moves the hand outside of the camera field before bringing it back to start a new word.
+This annotation rule is debatable, but at least this provide a likely explanation for the poor performance on the dataset. A language model cannot help with this dataset because fingerspelling is mostly used for out of vocabulary words.
 
 | Word spaces  | Correct | Deletion | Substitution |
 |--------------|---------|----------|--------------|
@@ -119,24 +119,23 @@ This annotation rule is debatable, but at least this provide a likely explanatio
 The next table shows the accuracy as a function of the number of frames per signed letter, and we can observe that performance increases monotonically with a plateau above 81% accuracy between 6 and 13 frames per letters.
 Most modern hardware support video recording in 30 FPS. This corresponds to a usage range between 2.3 and 5 letters per second for best performance, which is realistic for experienced signers.
 
-| Frames per | Mean | Samples |
-|   letter   | acc. |         |
-|------------|------|---------|
-|      1     |   22 |       6 |
-|      2     |   53 |     146 |
-|      3     |   66 |     289 |
-|      4     |   73 |     593 |
-|      5     |   77 |     392 |
-|      6     |   81 |     432 |
-|      7     |   82 |     205 |
-|      8     |   83 |     181 |
-|      9     |   81 |      88 |
-|     10     |   81 |      95 |
-|     11     |   82 |      43 |
-|     12     |   86 |      27 |
-|     13     |   84 |      21 |
-|     14     |   76 |      23 |
-|    15+     |   69 |      42 |
+| Frames per letter | Mean acc. | Samples |
+|-------------------|-----------|---------|
+|                 1 |        22 |       6 |
+|                 2 |        53 |     146 |
+|                 3 |        66 |     289 |
+|                 4 |        73 |     593 |
+|                 5 |        77 |     392 |
+|                 6 |        81 |     432 |
+|                 7 |        82 |     205 |
+|                 8 |        83 |     181 |
+|                 9 |        81 |      88 |
+|                10 |        81 |      95 |
+|                11 |        82 |      43 |
+|                12 |        86 |      27 |
+|                13 |        84 |      21 |
+|                14 |        76 |      23 |
+|               15+ |        69 |      42 |
 
 
 ## Testing on Your Own
