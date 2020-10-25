@@ -34,7 +34,7 @@ If you use it in your projects, please consider citing this repository (bibtex b
 
 ## MiCT-RANet Architecture Overview
 
-![MiCT-RANet Architecture](assets/MiCT-RANet.png)
+![MiCT-RANet Architecture](assets/MiCT-RANet_Wide.png)
 
 As depicted above, the MiCT-RANet architecture combines a recurrent visual attention module with a MiCT-ResNet backbone.
 The 34 layers ResNet version is used with a stride reduced to 16 in order to obtain larger feature maps for applying visual attention. This is achieved by changing the stride of the first layer of the last block from 2 to 1.
