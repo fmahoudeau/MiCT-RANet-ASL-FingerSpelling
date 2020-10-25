@@ -7,21 +7,21 @@ It achieves **74.4% letter accuracy** on the **ChicagoFSWild+** test set at **22
 
 MiCT-RANet mainly combines research from two recent papers and adds an improved training procedure:
 
-* [Mixed 3D/2D Convolutional Tube (MiCT) for Human Action Recognition](https://www.microsoft.com/en-us/research/uploads/prod/2018/05/Zhou_MiCT_Mixed_3D2D_CVPR_2018_paper.pdf): this CVPR'18 paper proposes to augment a 2D ConvNet backbone with a small number of parallel 3D convolutions introduced at key locations. This architecture allows the 3D convolution branches to only learn residual temporal features, which are the motion of objects and persons in videos, to complement the spatial features learned by 2D convolutions. My implementation of MiCT uses a ResNet backbone and is described in detail in this [Medium story](https://towardsdatascience.com/mict-net-for-human-action-recognition-in-videos-3a18e4f97342)
+* [Mixed 3D/2D Convolutional Tube (MiCT) for Human Action Recognition](https://www.microsoft.com/en-us/research/uploads/prod/2018/05/Zhou_MiCT_Mixed_3D2D_CVPR_2018_paper.pdf): this CVPR'18 paper proposes to augment a 2D ConvNet backbone with a small number of parallel 3D convolutions introduced at key locations. This architecture allows the 3D convolution branches to only learn residual temporal features, which are the motion of objects and persons in videos, to complement the spatial features learned by 2D convolutions. My implementation of MiCT uses a ResNet backbone and is described in detail in this [Medium story](https://towardsdatascience.com/mict-net-for-human-action-recognition-in-videos-3a18e4f97342).
 
 * [Fingerspelling Recognition in the Wild with Iterative Visual Attention](https://arxiv.org/pdf/1908.10546.pdf): this ICCV'19 paper introduces the ChicagoFSWild+ dataset, the largest collection to date of ASL fingerspelling videos. The team at University of Chicago achieved 62.3% letter accuracy on this recognition task using recurrent visual attention applied to the features maps of an AlexNet backbone. They developed an iterative training approach which increasingly zooms on the signing hand, thereby eliminating the need for a hand detector.
 
 This repository includes:
 
-* Source code of the Mixed 3D/2D Convolutional Tube (MiCT-Net) built on the ResNet backbone
+* Source code of the Mixed 3D/2D Convolutional Tube (MiCT-Net) built on the ResNet backbone.
 
-* Source code of the Recurrent Visual Attention Network
+* Source code of the Recurrent Visual Attention Network.
 
-* Evaluation code for ChicagoFSWild+ to reproduce the test accuracy
+* Evaluation code for ChicagoFSWild+ to reproduce the test accuracy.
 
-* Pre-trained weights with a ResNet34 backbone
+* Pre-trained weights with a ResNet34 backbone.
 
-* A Python application to practice your finger spelling with a webcam
+* A Python application to practice your fingerspelling with a webcam.
 
 If you use it in your projects, please consider citing this repository (bibtex below).
 
@@ -29,7 +29,7 @@ If you use it in your projects, please consider citing this repository (bibtex b
 
 * A publication is under way. It will be available on arXiv.
 * Releasing the training code is out of the scope of this repository for the time being.
-* Make sure to read and accept the license of the ChicagoFSWild and ChicagoFSWild+ datasets that were used to obtain the pre-trained weights available at the link enclosed below.
+* Make sure to read and accept the license of the ChicagoFSWild and ChicagoFSWild+ data sets that were used to obtain the pre-trained weights available at the link enclosed below.
 
 
 ## MiCT-RANet Architecture Overview
@@ -51,7 +51,7 @@ The training procedure produces a model skilled for a large range of camera zoom
 ## ChicagoFSWild Dataset
 
 The [ChicagoFSWild](https://ttic.uchicago.edu/~klivescu/ChicagoFSWild.htm) dataset is the first collection of American Sign Language fingerspelling data naturally occurring in online videos (ie. "in the wild"). The collection consists of two data set releases, ChicagoFSWild and ChicagoFSWild+.
-Both contain short clips of finger spelling sequences extracted from sign language videos crowd sourced from YouTube and Deaf social media. Clips were carefully annotated by experts.
+Both contain short clips of fingerspelling sequences extracted from sign language videos crowd sourced from YouTube and Deaf social media. Clips were carefully annotated by experts.
 
 The ChicagoFSWild data set contains 7304 ASL fingerspelling sequences from 160 different signers, carefully annotated by students who have studied ASL. ChicagoFSWild+ contains 55,232 sequences signed by 260 different signers.
 The train, dev, and test splits were designed to obtain signer-independent subsets. The merged dataset contains respectively 303, 59 and 58 unique signers for each split. This means that the accuracy of models trained with these 3 splits is reflective of their performance with unknown signers under various conditions (eg. indoor, outdoor, studio recording, etc...).
@@ -108,7 +108,7 @@ The full confusion matrix is pretty large, so I'm including only the top-10 of t
 Regarding **word spaces** the model detects them only 15% of the time and deletes them around 74% of the time. However **there is no such thing as a space character in ASL** so it is no surprise that the model performs poorly on this detection.
 Signers can use different means to indicate a word separator: they can make a short pause, or move the hand towards the right and make a pause, but very often they do nothing and just rely on their interlocutor to decode the sequence correctly.
 After viewing some of those sequences, I find that many of them have no pause to indicate a word separator, but the annotators inserted one in the label to make it readable.
-This annotation rule is debatable, but at least this provide a likely explanation for the poor performance on the dataset. A language model cannot help with this dataset because finger spelling is mostly used for out of vocabulary words. Nevertheless, the model seems to do well when the signer makes a pause or moves the hand outside of the camera field before bringing it back to start a new word.
+This annotation rule is debatable, but at least this provide a likely explanation for the poor performance on the dataset. A language model cannot help with this dataset because fingerspelling is mostly used for out of vocabulary words. Nevertheless, the model seems to do well when the signer makes a pause or moves the hand outside of the camera field before bringing it back to start a new word.
 
 | Word spaces  | Correct | Deletion | Substitution |
 |--------------|---------|----------|--------------|
@@ -140,7 +140,7 @@ Most modern hardware support video recording in 30 FPS. This corresponds to a us
 
 
 ## Testing on Your Own
-I'm providing below the link to the pre-trained weights to easily reproduce the above results and run the finger spelling practice application included in this repository.
+I'm providing below the link to the pre-trained weights to easily reproduce the above results and run the fingerspelling practice application included in this repository.
 Note that as already mentioned above, releasing the training code is out of the scope of this repository for the time being.
 
 
