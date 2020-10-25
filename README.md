@@ -164,10 +164,10 @@ Letter accuracy: 74.38% @ scale 2
 ## Fingerspelling Practice App
 
 A real-time fingerspelling interpreter is included in this repository. You can use it to practice your fingerspelling and evaluate MiCT-RANet's capabilities using a webcam or a smartphone connected to your computer.
-Before trying the application, I recommend that you first read the performance analysis described above, so that you understand what to expect and where the calibration come from.
+Before trying the application, I recommend that you first read the performance analysis described above, so that you understand what to expect and where the calibration comes from.
 The quality of your experience will depend on your hardware performance, your ability to calibrate the application using the provided parameters, and your fingerspelling skills.
 
-**This application is provided as-is. It is not a product ! I will not provide support, nor respond to troubleshooting requests, nor write a user guide, or teach fingerspelling !**
+**This application is provided as-is. It is not a product ! I will not provide support, nor respond to troubleshooting requests, or teach fingerspelling !**
 
 I cannot advise what are the minimum hardware requirements. These are my measured frame rates as a function of the number of input frames (see optional argument `frames_window`) used to make a frame prediction. The CPU is a Core i7 6700K.
 The 2080 Ti and Titan RTX have very close performance. The highest GPU throughput is obtained with batches of 21 frames: the Titan can process 12.1 batches per second, or the equivalent of 254 FPS.
