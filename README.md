@@ -34,9 +34,7 @@ If you use it in your projects, please consider citing this repository (bibtex b
 
 ## MiCT-RANet Architecture Overview
 
-![MiCT-RANet Architecture](assets/MiCT-RANet_Wide.png)
-
-As depicted above, the MiCT-RANet architecture combines a recurrent visual attention module with a MiCT-ResNet backbone.
+As depicted below, the MiCT-RANet architecture combines a recurrent visual attention module with a MiCT-ResNet backbone.
 The 34 layers ResNet version is used with a stride reduced to 16 in order to obtain larger feature maps for applying visual attention. This is achieved by changing the stride of the first layer of the last block from 2 to 1.
 A total of five 3D convolutions are inserted along this backbone using residual connections to form so-called Mixed 3D/2D Convolutional Tubes. The depth of all 3D kernels is set to 5 to capture hand movements details along the temporal dimension.
 
@@ -44,6 +42,8 @@ The recurrent visual attention network (RANet) uses additive attention (also cal
 The LSTM cell's hidden state and the CNN feature maps are jointly used to yield an attention map. This attention map reflects the importance of features at each spatial location for the recognition of signing sequences.
 The attention map is then weighted by the magnitude of the optical flow and re-normalized. The optical flow indicates the regions in motion within the image and provides a good attention prior for locating the signing hand.
 Given the small size of the features maps, it can be computed in real-time on CPU at low resolution without affecting accuracy.
+
+![MiCT-RANet Architecture](assets/MiCT-RANet_Wide.png)
 
 The training procedure produces a model skilled for a large range of camera zoom with stable accuracy. The CTCLoss is used at train time while beam search with a beam size of 5 is used for decoding at test time. No language model was used as it yielded no performance improvements.
 
