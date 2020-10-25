@@ -179,17 +179,18 @@ The 2080 Ti and Titan RTX have very close performance. The highest GPU throughpu
 | NVIDIA 2080 Ti       |    17.9    |     14.8    |     13.0    |     11.8    |
 | NVIDIA Titan RTX     |    19.5    |     16.5    |     13.3    |     12.1    |
 
-### Important comments and calibration tips
+### Usage and Calibration Tips
 * **The application predicts the signed letter when you transition to the next one.** This means that it is useless to hold your hand and wait for the detection because nothing will happen until you start moving your fingers to make the next letter. It can be confusing at the beginning and takes some time to get used to the lag.
 * **It is desirable to sign fast because the model was trained with and for expert signers.** The dataset has 6 frames per letter on average. There is no need to aim for 30FPS or even 24 unless you are an expert signer who can sign 4 letters per second.
 * **Be patient if you are learning fingerspelling** as the model was not made to be used by beginners. The application can still do okay if you sign slowly, but you will get more unexpected letter insertions. For example, if you transition from letter B to O, the model might insert a C in between and there is nothing wrong with that. It means that you need to sign faster or reduce the frame rate. Use the `skip_frames` optional parameter to down sample your camera’s frame rate.
-* **The model was not trained to predict long English sentences.** The dataset has only 5.1 letters per video sample and ASL signers use fingerspelling for out of vocabulary words so the dataset is the opposite of that.
-* **Enable auto-focus and block exposure** and other automatic image adjustments as it may degrade performance by adding noise to the optical flows.
+* **The model was not trained to predict long English sentences.** The dataset has only 5.1 letters per video sample on average and ASL signers use fingerspelling for out of vocabulary words, so the dataset is the opposite to that purpose.
+* **All letters have gesture variations** and the model does not recognize them equally well. You may have to adapt your signing style to the application's capabilities to obtain the desired results.
+* **Enable auto-focus and block exposure** and other automatic image adjustments as it may degrade performance by adding noise to the optical flow.
 * **Position yourself at the right distance from the camera:** check the animations on this page for instructions and use your camera’s built-in zoom if needed.
-* **Lightning must not be neglected:** your hand and face must not be casting shadows. A direct light facing you will help and three-point lightning is the ideal setup.
+* **Lightning must not be neglected:** your hand and face should not be casting shadows. A direct light facing you will help and three-point lightning is the ideal setup.
 
 
-### Running the application
+### Running the Application
 To start the application with the default parameters simply run the following command:
 
 ```
@@ -197,23 +198,23 @@ $ python webcam.py
 ```
 
 **The main optional arguments are:**
-* **frames_window:** the number of frames used to make each prediction. The possible values are 9, 13, 17 and 21. Larger windows provide higher performance but requires better signing skills: if you make a very small pause with a large window, the model will insert a space you've not asked for.
-* **flows_window:** the number of optical flows used to calculate an attention prior map. The default value is 5 and it should not be changed.
-* **skip_frames:** controls the down-sampling factor applied to the webcam. For example using a value of 3 on a 30FPS camera will reduce the frame rate to 10. Beginners may get started with 10 or 12FPS. More advanced users may want to target 15 to 18FPS. The higher the frame rate, the more invalid letter insertions. The default is 2.
+* **frames_window:** the number of frames used to make each prediction. The possible values are 9, 13, 17 and 21. Larger windows provide higher performance but increase the lag and require better signing skills: if you make a very small pause with a large window, the model may insert a space you've not asked for.
+* **flows_window:** the number of optical flows used to calculate an attention prior map. The default value is 5 and should not be changed.
+* **skip_frames:** controls the down-sampling factor applied to the webcam. For example using a value of 3 on a 30FPS camera will reduce the frame rate to 10. Beginners may get started with 10 or 12FPS. More advanced users may want to target 15 to 18FPS. The higher the frame rate, the more invalid letter insertions. The default value is 2.
 
 **Commands**
-* Press the `Delete` key to clear the detected letters.
+* Press the `Delete` key to clear all letters.
 * Press the `Enter` key to start a new line.
-* Press the `Space` key to insert a space character (this is cheating !).
+* Press the `Space` key to insert a space character. This is cheating but provided for convenience.
 * Press the `Backspace` key to delete the last letter (this is also cheating !).
-* Press the `r` key to start or stop recording. Frames are saved to disk in a new folder.
+* Press the `r` key to start or stop recording. Each recording sequence will be saved in a new folder.
 * Press the `Escape`, `q` or `x` key to exit the application.
 
 
 ## Future Work
 
-* **Optimize the App:** it is possible to get higher frame rates at the cost of an increased lag.
-* **Language model:** the App experience could very much benefit from a LM for signing full English phrases.
+* **Optimizations:** it is possible to get higher frame rates at the cost of an increased lag.
+* **NLP enhancements:** the experience could benefit from a spell-checker and a language model for signing full English phrases.
 * **Noise reduction:** apply methods to identify noisy labels and either correct them or progressively remove the noisy samples during training.
 * **Increase model complexity:** add more 3D kernels and/or pseudo-3D kernels, use deeper 3D kernels capable of processing 7 images or more, bi-directional LSTM.
 
@@ -229,15 +230,14 @@ conda install -c pytorch pytorch torchvision cudatoolkit=10.1 numpy scipy pandas
 conda install -c conda-forge opencv=4.1.1
 ```
 
-You need a high quality webcam because low quality webcams produce noisy pixels that affects the quality of optical flows. Most smartphones have high quality video recording capabilities. To use an Android phone as Webcam you can install the DroidCamX Pro app to transfer the video stream to your PC using a USB cable.
-More information can be found by following this [link](http://www.dev47apps.com/)
+You need a **high quality camera** because low quality hardware produce noisy pixels that affect the quality of the optical flow. Most smartphones have high quality video recording capabilities. To use an Android phone as webcam you can install **DroidCamX Pro** to transfer the video stream to your PC using a USB cable. More information can be found by following this [link](http://www.dev47apps.com/)
 
 
 ## Citation
 Use this bibtex to cite this repository:
 ```
 @misc{fmahoudeau_mict_ranet_2020,
-  title={MiCT-RANet for real-time ASL fingerspelling recognition},
+  title={MiCT-RANet for real-time ASL fingerspelling video recognition},
   author={Florent Mahoudeau},
   year={2020},
   publisher={GitHub},
