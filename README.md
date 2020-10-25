@@ -11,6 +11,8 @@ MiCT-RANet mainly combines research from two recent papers and adds an improved 
 
 * [Fingerspelling Recognition in the Wild with Iterative Visual Attention](https://arxiv.org/pdf/1908.10546.pdf): this ICCV'19 paper introduces the ChicagoFSWild+ dataset, the largest collection to date of ASL fingerspelling videos. The team at University of Chicago achieved 62.3% letter accuracy on this recognition task using recurrent visual attention applied to the features maps of an AlexNet backbone. They developed an iterative training approach which increasingly zooms on the signing hand, thereby eliminating the need for a hand detector.
 
+### Repository Content
+
 This repository includes:
 
 * Source code of the Mixed 3D/2D Convolutional Tube (MiCT-Net) built on the ResNet backbone.
@@ -25,9 +27,9 @@ This repository includes:
 
 If you use it in your projects, please consider citing this repository (bibtex below).
 
-<b>Notes:</b>
+### Notes
 
-* A publication is under way. It will be available on arXiv.
+* A publication is under preparation. It will be made available on arXiv.
 * Releasing the training code is out of the scope of this repository for the time being.
 * Make sure to read and accept the license of the ChicagoFSWild and ChicagoFSWild+ data sets that were used to obtain the pre-trained weights available at the link enclosed below.
 
@@ -145,7 +147,7 @@ Note that as already mentioned above, releasing the training code is out of the 
 
 | Architecture                                                                    | Parameters  | Letter accuracy |
 |---------------------------------------------------------------------------------|-------------|-----------------|
-| [MiCT-RANet34](https://1drv.ms/u/s!AvyZUg7UPo_CgdN4QBbq4I85Cl25Ww?e=KY07YI)    | 32.2M       | **74.4**        |
+| [MiCT-RANet34](https://1drv.ms/u/s!AvyZUg7UPo_CgdN4QBbq4I85Cl25Ww?e=KY07YI)     | 32.2M       | **74.4**        |
 
 You can test the model directly from the command line as such:
 
@@ -177,7 +179,7 @@ The 2080 Ti and Titan RTX have very close performance. The highest GPU throughpu
 | NVIDIA 2080 Ti       |    17.9    |     14.8    |     13.0    |     11.8    |
 | NVIDIA Titan RTX     |    19.5    |     16.5    |     13.3    |     12.1    |
 
-**Important comments and calibration tips:**
+### Important comments and calibration tips
 * **The application predicts the signed letter when you transition to the next one.** This means that it is useless to hold your hand and wait for the detection because nothing will happen until you start moving your fingers to make the next letter. It is confusing at the beginning and can take some time to get used to this lag.
 * **It is desirable to sign fast because the model was trained with and for expert signers.** The dataset has 6 frames per letter on average. There is no need to aim for 30FPS or even 24 unless you are an expert signer who can sign 4 letters per second.
 * **Be patient if you are learning fingerspelling** as the model was not made to be used by beginners. The application can still do okay if you sign slowly, but you will get more errors like wrong letter insertions. For example, if you transition «slowly» from letter B to O, the model might insert a C in between and there is nothing wrong with that. It means that you need to sign faster or reduce the frame rate. Use the `skip_frames` optional parameter to down sample your camera’s frame rate.
@@ -187,16 +189,25 @@ The 2080 Ti and Titan RTX have very close performance. The highest GPU throughpu
 * **Lightning must not be neglected:** your hand and face must not be casting shadows. A direct light facing you will help and three-point lightning is the ideal setup.
 
 
+### Running the application
 To start the application with the default parameters simply run the following command:
 
 ```
 $ python webcam.py
 ```
 
-The main optional arguments are:
+**The main optional arguments are:**
 * **frames_window:** the number of frames used to make each prediction. The possible values are 9, 13, 17 and 21. Larger windows provide higher performance but requires better signing skills: if you make a very small pause with a large window, the model will insert a space you've not asked for.
 * **flows_window:** the number of optical flows used to calculate an attention prior map. The default value is 5 and it should not be changed.
 * **skip_frames:** controls the down-sampling factor applied to the webcam. For example using a value of 3 on a 30FPS camera will reduce the frame rate to 10. Beginners may get started with 10 or 12FPS. More advanced users may want to target 15 to 18FPS. The higher the frame rate, the more invalid letter insertions. The default is 2.
+
+**Commands**
+* Press the `Delete` key to clear the detected letters.
+* Press the `Enter` key to start a new line.
+* Press the `Space` key to insert a space character (this is cheating !).
+* Press the `Backspace` key to delete the last letter (this is also cheating !).
+* Press the `r` key to start or stop recording. Frames are saved to disk in a new folder.
+* Press the `Escape`, `q` or `x` key to exit the application.
 
 
 ## Future Work
