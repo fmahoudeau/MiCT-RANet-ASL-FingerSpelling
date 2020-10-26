@@ -230,7 +230,7 @@ conda install -c pytorch pytorch torchvision cudatoolkit=10.1 numpy scipy pandas
 conda install -c conda-forge opencv=4.1.1
 ```
 
-You need a **high quality camera** because low quality hardware produce noisy pixels that affect the quality of the optical flow. Most smartphones have high quality video recording capabilities. To use an Android phone as webcam you can install **DroidCamX Pro** to transfer the video stream to your PC using a USB cable. More information can be found by following this [link](http://www.dev47apps.com/)
+You need a **high quality camera** because low quality hardware produce noisy pixels that affect the quality of the optical flow. Most smartphones have high quality video recording capabilities. To use an Android phone as webcam you can install **DroidCamX Pro** to transfer the video stream to your PC using a USB cable. More information can be found by following this [link](http://www.dev47apps.com/).
 
 
 ## Citation
