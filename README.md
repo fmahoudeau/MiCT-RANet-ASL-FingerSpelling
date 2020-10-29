@@ -53,7 +53,7 @@ The training procedure produces a model skilled for a large range of camera zoom
 ## ChicagoFSWild Dataset
 
 The [ChicagoFSWild](https://ttic.uchicago.edu/~klivescu/ChicagoFSWild.htm) dataset is the first collection of American Sign Language fingerspelling data naturally occurring in online videos (ie. "in the wild"). The collection consists of two data set releases, ChicagoFSWild and ChicagoFSWild+.
-Both contain short clips of fingerspelling sequences extracted from sign language videos crowd sourced from YouTube and Deaf social media. Clips were carefully annotated by experts.
+Both contain short clips of fingerspelling sequences extracted from sign language videos crowd sourced from YouTube and Deaf social media.
 
 The ChicagoFSWild data set contains 7304 ASL fingerspelling sequences from 160 different signers, carefully annotated by students who have studied ASL. ChicagoFSWild+ contains 55,232 sequences signed by 260 different signers.
 The train, dev, and test splits were designed to obtain signer-independent subsets. The merged dataset contains respectively 303, 59 and 58 unique signers for each split. This means that the accuracy of models trained with these 3 splits is reflective of their performance with unknown signers under various conditions (eg. indoor, outdoor, studio recording, etc...).
