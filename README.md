@@ -29,7 +29,7 @@ If you use it in your projects, please consider citing this repository (bibtex b
 
 ### Notes
 
-* A publication is under preparation. It will be made available on arXiv.
+* I am not planning to publish a paper at this stage. I have enclosed many details regarding the model, experiments and results on this page. 
 * Releasing the training code is out of the scope of this repository for the time being.
 * Make sure to read and accept the license of the ChicagoFSWild and ChicagoFSWild+ data sets that were used to obtain the pre-trained weights available at the link enclosed below.
 
