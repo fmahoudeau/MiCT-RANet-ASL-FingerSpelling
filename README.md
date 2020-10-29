@@ -236,7 +236,7 @@ You need a **high quality camera** because low quality hardware produce noisy pi
 ## Citation
 Use this bibtex to cite this repository:
 ```
-@misc{fmahoudeau_mict_ranet_2020,
+@misc{fmahoudeau_mictranet_2020,
   title={MiCT-RANet for real-time ASL fingerspelling video recognition},
   author={Florent Mahoudeau},
   year={2020},
