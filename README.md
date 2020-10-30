@@ -1,9 +1,9 @@
 # MiCT-RANet for ASL Fingerspelling
 
 This repository introduces MiCT-RANet, an efficient Deep Neural Network architecture for real-time recognition of ASL fingerspelled video sequences.
-It achieves **74.4% letter accuracy** on the **ChicagoFSWild+** test set at **229 FPS**. MiCT-RANet is the SOTA at the time of publishing this repository, and improves the previous best performing model by a whopping 19.5%. A **fingerspelling practice application** using this model is also included in this repository. To my knowldege this the first complete fingerspelling application ever created based on RGB videos. It resolves a number of limitations found in other applications  which I have described in the enclosed video.
+It achieves **74.4% letter accuracy** on the **ChicagoFSWild+** test set at **229 FPS**. MiCT-RANet is the SOTA at the time of publishing this repository (Oct-2020), and improves the previous best performing model by a whopping 19.5%. A **fingerspelling practice application** using this model is also included in this repository. To my knowldege this the first complete fingerspelling application ever created based on RGB videos. It resolves a number of limitations found in other applications  which I have described in the enclosed video.
 
-![MiCT-RANet applied to ChicagoFSWild datasets](assets/MiCT-RANet.gif)
+![MiCT-RANet applied to ChicagoFSWild datasets](assets/MiCT-RANet-Wide.gif)
 
 MiCT-RANet mainly combines research from two recent papers and adds an improved training procedure:
 
