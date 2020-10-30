@@ -171,8 +171,10 @@ The quality of your experience will depend on your hardware performance, your ab
 
 **This application is provided as-is. It is not a product ! I will not provide support, nor respond to troubleshooting requests, or teach fingerspelling !**
 
+![Fingerspelling Practice](assets/coronacircus.gif)
+
 I cannot advise what are the minimum hardware requirements. These are my measured frame rates as a function of the number of input frames (see optional argument `frames_window`) used to make a frame prediction. The CPU is a Core i7 6700K.
-The 2080 Ti and Titan RTX have very close performance. The highest GPU throughput is obtained with batches of 21 frames: the Titan can process 12.1 batches per second, or the equivalent of 254 FPS.
+The 2080 Ti and Titan RTX have very close performance. The highest GPU throughput is obtained with batches of 21 frames: the Titan can process 12.1 batches per second, or the equivalent of 254 FPS. A 3070 or above should do even better.
 
 | Video card \ window  |  9 frames  |  13 frames  |  17 frames  |  21 frames  |
 |----------------------|------------|-------------|-------------|-------------|
