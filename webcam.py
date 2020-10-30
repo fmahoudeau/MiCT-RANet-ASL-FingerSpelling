@@ -625,6 +625,10 @@ def main():
                                       str(datetime.now()).split('.')[0].replace(' ', '@'))
                 os.makedirs(os.path.join(outdir, 'plot'))
                 os.makedirs(os.path.join(outdir, 'raw'))
+                h = h0
+                last_letter = '_'
+                sentence = ''
+                n_lines = 0
             if not is_recording:
                 n_frames = 0  # reset counter for next recording
         # enforce space character insertion (cheating !)
