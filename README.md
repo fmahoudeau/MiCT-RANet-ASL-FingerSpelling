@@ -27,13 +27,6 @@ This repository includes:
 
 If you use it in your projects, please consider citing this repository (bibtex below).
 
-### Notes
-
-* I am not planning to publish a paper at this stage. I have enclosed many details regarding the model, experiments and results on this page. Additional information about MiCT-ResNet can also be found in my other dedicated [repository](https://github.com/fmahoudeau/MiCT-Net-PyTorch).
-* Releasing the training code is out of the scope of this repository for the time being.
-* Make sure to read and accept the license of the ChicagoFSWild and ChicagoFSWild+ data sets that were used to obtain the pre-trained weights available at the link enclosed below.
-
-
 ## MiCT-RANet Architecture Overview
 
 As depicted below, the MiCT-RANet architecture combines a recurrent visual attention module with a MiCT-ResNet backbone.
@@ -141,8 +134,7 @@ Most modern hardware support video recording in 30 FPS. This corresponds to a us
 
 
 ## Testing on Your Own
-I'm providing below the link to the pre-trained weights to easily reproduce the above results and run the fingerspelling practice application included in this repository.
-Note that as already mentioned above, releasing the training code is out of the scope of this repository for the time being.
+I'm providing below the link to the pre-trained weights to easily reproduce the above results and run the fingerspelling practice application included in this repository. Note that releasing the training code is out of the scope of this repository for the time being.
 
 
 | Architecture                                                                    | Parameters  | Letter accuracy |
