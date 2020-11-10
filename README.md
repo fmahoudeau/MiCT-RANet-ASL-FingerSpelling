@@ -1,7 +1,7 @@
 # MiCT-RANet for ASL Fingerspelling
 
 This repository introduces MiCT-RANet, an efficient Deep Neural Network architecture for real-time recognition of ASL fingerspelled video sequences.
-It achieves **74.4% letter accuracy** on the **ChicagoFSWild+** test set at **229 FPS**. MiCT-RANet is the SOTA at the time of publishing this repository (Oct-2020), and improves the previous best performing model by a whopping 19.5%. A **fingerspelling practice application** using this model is also included in this repository. To our knowldege it is the first fully functional fingerspelling application created based on RGB frames. It resolves a number of limitations found in other applications which are described in the enclosed video.
+It achieves **74.4% letter accuracy** on the **ChicagoFSWild+** test set at **229 FPS**. MiCT-RANet is the SOTA at the time of publishing this repository (Oct-2020), and improves the previous best performing model by a whopping 19.5%. A **fingerspelling practice application** using this model is also included in this repository. To our knowldege it is the first fully functional fingerspelling application based only on RGB frames. It resolves a number of limitations found in other applications which are described in the enclosed video.
 
 ![MiCT-RANet applied to ChicagoFSWild datasets](assets/MiCT-RANet-Wide.gif)
 
@@ -161,7 +161,7 @@ A real-time fingerspelling interpreter is included in this repository. You can u
 Before trying the application, I recommend that you first read the performance analysis described above, so that you understand what to expect and where the calibration comes from.
 The quality of your experience will depend on your hardware performance, your ability to calibrate the application using the provided parameters, and your fingerspelling skills.
 
-**This application is provided as-is. It is not a product ! I will not provide support, nor respond to troubleshooting requests, or teach fingerspelling !**
+**This application is provided as-is. It is not a product ! I will not provide support and may not respond to troubleshooting requests.**
 
 ![Fingerspelling Practice](assets/coronacircus.gif)
 
