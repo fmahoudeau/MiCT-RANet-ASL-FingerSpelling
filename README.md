@@ -139,12 +139,12 @@ I'm providing below the link to the pre-trained weights to easily reproduce the 
 
 | Architecture                                                                    | Parameters  | Letter accuracy |
 |---------------------------------------------------------------------------------|-------------|-----------------|
-| [MiCT-RANet34](https://1drv.ms/u/s!AvyZUg7UPo_CgdN4QBbq4I85Cl25Ww?e=KY07YI)     | 32.2M       | **74.4**        |
+| [MiCT-RANet34](https://drive.proton.me/urls/3QC326KREG#owB6r4GkFdbN)            | 32.2M       | **74.4**        |
 
 You can test the model directly from the command line as such:
 
 ```
-$ python test.py --conf.ini
+$ python test.py --conf conf.ini
 Compute device: cuda
 2583 test samples
 Loading weights from: data/MiCT-RANet34.pth
