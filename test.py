@@ -10,8 +10,9 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 import cv2 as cv
 
-from chicago_fs_wild import (ChicagoFSWild, ToTensor, Normalize)
-from mictranet import MiCTRANet, init_lstm_hidden
+from chicago_fs_wild import ChicagoFSWild
+from fs_board import FSBoard
+from mictranet2 import init_lstm_hidden
 from utils import *
 
 
@@ -29,7 +30,7 @@ def get_optical_flows(frames, img_size):
     :return a list of optical flow matrices of the same length as `frames`.
     """
 
-    # optical flows can be computed in smaller resolution w/o harming performance
+    # optical flows can be computed in smaller resolution w/o harming accuracy
     frames = [cv.resize(frames[i], (img_size // 2, img_size // 2)) for i in range(len(frames))]
     frame1 = frames[0]
 
@@ -84,7 +85,8 @@ def get_attention_maps(priors, map_size):
     return maps
 
 
-def test(encoder, loader, img_size, map_size, int_to_char, char_to_int, beam_size, device):
+def test(encoder, loader, img_size, map_size, int_to_char, 
+         char_to_int, beam_size, dataset_name, device):
     encoder.to(device)
     encoder.eval()
     hidden_size = encoder.attn_cell.hidden_size
@@ -113,7 +115,11 @@ def test(encoder, loader, img_size, map_size, int_to_char, char_to_int, beam_siz
             probs = encoder(imgs, h0, maps)[0].cpu().numpy()[0]
 
         torch.cuda.synchronize()  # wait for finish
-        pred = beam_decode(probs, beam_size, int_to_char, char_to_int, digit=True)
+
+        if dataset_name == 'fsboard':
+            pred = greedy_decode(probs, int_to_char, digit=True)
+        elif dataset_name == 'chicagofs':
+            pred = beam_decode(probs, beam_size, int_to_char, char_to_int, digit=True)
         preds.append(np.asarray(pred))
         end = time.perf_counter()
         run_times.append(end-start)
@@ -126,12 +132,19 @@ def test(encoder, loader, img_size, map_size, int_to_char, char_to_int, beam_siz
 
 
 def main():
-    # example usage: python test.py --conf conf.ini --scale-x 2
+    # python test2.py --conf conf.ini --scale 2 --model_version=v1
+
+    # python test2.py --conf conf2.ini --scale 2 --model_version=v2
+
+    # example usage: python test2.py --conf conf2.ini --scale 2
+    # 76.40, 77.16, 76.95, 76.26
     parser = argparse.ArgumentParser(description='Test MiCT-RecNet letter accuracy')
     parser.add_argument('--conf', type=str, help='configuration file')
-    parser.add_argument('--scale-x', type=str, default='2', help='attention zoom (default: 2)')
+    parser.add_argument('--scale', type=str, default='2', help='attention zoom (default: 2)')
     parser.add_argument('--beam_size', type=int, default=5, help='beam size for decoding')
     parser.add_argument('--gpu_id', type=str, default='0', help='CUDA enabled GPU device (default: 0)')
+    parser.add_argument('--model_version', type=str, choices=['v1', 'v2'], default='v2',
+                        help="Specify the model version to use ('v1' or 'v2'). Defaults to 'v2'.")
 
     args = parser.parse_args()
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
@@ -141,6 +154,7 @@ def main():
     model_cfg, lang_cfg = config['MODEL'], config['LANG']
     img_cfg, data_cfg = config['IMAGE'], config['DATA']
     char_list = lang_cfg['chars']
+    model_version = args.model_version
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print('Compute device: ' + device)
@@ -153,28 +167,72 @@ def main():
     img_std = [float(x) for x in img_cfg['img_std'].split(',')]
     tsfm = transforms.Compose([ToTensor(), Normalize(img_mean, img_std)])
 
-    test_data = ChicagoFSWild('test', data_cfg.get('img_dir'), data_cfg.get('csv'),
-                              vocab_map, transform=tsfm, lambda_x=data_cfg.get('lambda_x'),
-                              scale_x=args.scale_x)
+    # dataset
+    dataset_name = data_cfg.get('dataset')
+    img_size = model_cfg.getint('img_size')
+    hidden_size = model_cfg.getint('hidden_size')
+    attn_size = model_cfg.getint('attn_size')
+    map_size = model_cfg.getint('map_size')
+
+    if dataset_name == 'fsboard':
+        test_data = FSBoard(
+            'test', 
+            data_cfg.get('img_dir'), 
+            data_cfg.get('annots'),
+            vocab_map, 
+            transform=tsfm, 
+            img_size=img_size, 
+            map_size=map_size
+        )
+    elif dataset_name == 'chicagofs':
+        test_data = ChicagoFSWild(
+            'test', 
+            data_cfg.get('img_dir'), 
+            data_cfg.get('csv'),
+            vocab_map, 
+            transform=tsfm, 
+            img_size=img_size, 
+            map_size=map_size,
+            lambda_x=data_cfg.get('lambda_x'),
+            scale_x=args.scale
+        )
+    else:
+        raise ValueError('Unknown dataset: %s' % dataset_name)
 
     test_loader = DataLoader(test_data, batch_size=1, shuffle=False, num_workers=4)
 
-    encoder = MiCTRANet(backbone=model_cfg.get('backbone'),
-                        hidden_size=model_cfg.getint('hidden_size'),
-                        attn_size=model_cfg.getint('attn_size'),
-                        output_size=len(char_list),
-                        mode='offline')
+    if model_version == 'v1':
+        from mictranet import MiCTRANet
+        encoder = MiCTRANet(
+            backbone=model_cfg.get('backbone'),
+            hidden_size=hidden_size,
+            attn_size=attn_size,
+            output_size=len(char_list),
+            mode='offline'
+        )
+    else:
+        from mictranet2 import MiCTRANet    
+        encoder = MiCTRANet(
+            backbone=model_cfg.get('backbone'),
+            hidden_size=hidden_size,
+            attn_size=attn_size,
+            output_size=len(char_list),
+            stem_kernels=eval(model_cfg.get('stem_kernels')),
+            stages_kernels=eval(model_cfg.get('stages_kernels')),
+            groups=eval(model_cfg.get('groups')),
+            mode='offline'
+        )
 
     print('Loading weights from: %s' % model_cfg['model_pth'])
-    encoder.load_state_dict(torch.load(model_cfg['model_pth']))
+    encoder.load_state_dict(torch.load(model_cfg['model_pth'], map_location='cpu'))
 
-    # count parameter number
+    # count parameters
     print('Total number of encoder parameters: %d' % sum(p.numel() for p in encoder.parameters()))
 
     lev_acc = test(encoder, test_loader, model_cfg.getint('img_size'),
                    model_cfg.getint('map_size'), inv_vocab_map, vocab_map,
-                   args.beam_size, device)
-    print('Letter accuracy: %.2f%% @ scale %s' % (lev_acc, args.scale_x))
+                   args.beam_size, dataset_name, device)
+    print('Letter accuracy: %.2f%% @ scale %s' % (lev_acc, args.scale))
 
 
 if __name__ == '__main__':

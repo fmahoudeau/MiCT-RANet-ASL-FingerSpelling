@@ -1,8 +1,12 @@
 import math
 import numpy as np
+import torch
+import cv2 as cv
 
 
-__all__ = ['get_ctc_vocab', 'iterative_levenshtein', 'compute_acc', 'beam_decode']
+__all__ = ['ToTensor', 'Normalize', 'PriorToMap', 'Batchify',
+           'get_ctc_vocab', 'iterative_levenshtein', 'compute_acc', 
+           'greedy_decode', 'beam_decode']
 
 
 def get_ctc_vocab(char_list):
@@ -94,6 +98,26 @@ def compute_acc(preds, labels, costs=(7, 7, 10)):
     return acc
 
 
+def greedy_decode(prob, int_to_char, digit=False, blank_index=0):
+    # prob: [seq_len, num_labels+1], numpy array
+    indexes = np.argmax(prob, axis=1)
+    string = []
+    prev_index = -1
+    for i in range(len(indexes)):
+        if indexes[i] == blank_index:
+            prev_index = -1
+            continue
+        elif indexes[i] == prev_index:
+            continue
+        else:
+            if digit is False:
+                string.append(int_to_char[indexes[i]])
+            else:
+                string.append(indexes[i])
+            prev_index = indexes[i]
+    return string
+
+
 def beam_decode(prob, beam_size, int_to_char, char_to_int, digit=False, blank_index=0):
     # prob: [seq_len, num_labels+1], numpy array
     seqlen = len(prob)
@@ -148,3 +172,57 @@ def beam_decode(prob, beam_size, int_to_char, char_to_int, digit=False, blank_in
         pred = list(map(lambda x: int_to_char[x], pred))
 
     return pred
+
+
+class ToTensor(object):
+    """Convert sample to tensors."""
+    def __init__(self):
+        return
+
+    def __call__(self, sample):
+        # swap channel axis: DxHxWxC => DxCxHxW
+        imgs = torch.from_numpy(sample['imgs'])
+        imgs = imgs.transpose(2, 3).transpose(1, 2)
+        sample['imgs'] = imgs
+        if 'gray' in sample.keys():
+            sample['gray'] = torch.from_numpy(sample['gray'])
+        if 'maps' in sample.keys():
+            sample['maps'] = torch.from_numpy(sample['maps'])
+        if 'label' in sample.keys():
+            sample['label'] = torch.IntTensor(sample['label'])
+        return sample
+
+
+class Normalize(object):
+    """Normalize sample RGB images."""
+    def __init__(self, mean, std):
+        self.mean = torch.FloatTensor(mean).view(1, 3, 1, 1)
+        self.std = torch.FloatTensor(std).view(1, 3, 1, 1)
+
+    def __call__(self, sample):
+        sample['imgs'] = (sample['imgs'] / 255.0 - self.mean) / self.std
+        return sample
+
+
+class PriorToMap(object):
+    """Convert ndarrays in sample to Tensors."""
+    def __init__(self, map_size):
+        self.map_size = map_size
+        return
+
+    def __call__(self, sample):
+        priors = sample['priors']
+        maps = [cv.resize(prior, (self.map_size, self.map_size)) for prior in priors]
+        sample['maps'] = np.stack(maps, axis=0)
+        return sample
+
+
+class Batchify(object):
+    """Unsqueezes sample's tensors to insert a batch dimension of 1."""
+    def __init__(self):
+        return
+
+    def __call__(self, sample):
+        sample['imgs'] = sample['imgs'].unsqueeze(dim=0)
+        sample['maps'] = sample['maps'].unsqueeze(dim=0)
+        return sample

@@ -1,4 +1,6 @@
 __pycache__/
+.idea/
+data/recordings/
 *.pyc
 *.pth
 .~*

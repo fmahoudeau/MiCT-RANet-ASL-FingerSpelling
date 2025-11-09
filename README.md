@@ -1,15 +1,22 @@
 # MiCT-RANet for ASL Fingerspelling
 
 This repository introduces MiCT-RANet, an efficient Deep Neural Network architecture for real-time recognition of ASL fingerspelled video sequences.
-It achieves **74.4% letter accuracy** on the **ChicagoFSWild+** test set at **229 FPS**. MiCT-RANet is the SOTA at the time of publishing this repository (Oct-2020), and improves the previous best performing model by a whopping 19.5%. A **fingerspelling practice application** using this model is also included in this repository. To our knowldege it is the first fully functional fingerspelling application based only on RGB frames. It resolves a number of limitations found in other applications which are described in the enclosed video.
+It achieves **77.2% letter accuracy** on the **ChicagoFSWild+** test set, and improves the original paper by a whopping 24%. 
+Furthermore, after fine tuning this model on **FSBoard**, it achieves **92.7%** on the **FSBoard** test set (alpha subset). 
+This is the raw model performance; a language model can be added on top to correct spelling errors.
+A **fingerspelling practice application** using this model is also included in this repository. 
+To our knowldege it is the first fully functional fingerspelling application based only on RGB frames.
 
 ![MiCT-RANet applied to ChicagoFSWild datasets](assets/MiCT-RANet-Wide.gif)
 
-MiCT-RANet mainly combines research from two recent papers and adds an improved training procedure:
+MiCT-RANet mainly combines research from these papers and adds an improved training procedure:
 
 * [Mixed 3D/2D Convolutional Tube (MiCT) for Human Action Recognition](https://www.microsoft.com/en-us/research/uploads/prod/2018/05/Zhou_MiCT_Mixed_3D2D_CVPR_2018_paper.pdf): this CVPR'18 paper proposes to augment a 2D ConvNet backbone with a small number of parallel 3D convolutions introduced at key locations. This architecture allows the 3D convolution branches to only learn residual temporal features, which are the motion of objects and persons in videos, to complement the spatial features learned by 2D convolutions. My implementation of MiCT uses a ResNet backbone and is described in detail in this [Medium story](https://towardsdatascience.com/mict-net-for-human-action-recognition-in-videos-3a18e4f97342).
 
 * [Fingerspelling Recognition in the Wild with Iterative Visual Attention](https://arxiv.org/pdf/1908.10546.pdf): this ICCV'19 paper introduces the ChicagoFSWild+ dataset, the largest collection to date of ASL fingerspelling videos. The team at University of Chicago achieved 62.3% letter accuracy on this recognition task using recurrent visual attention applied to the features maps of an AlexNet backbone. They developed an iterative training approach which increasingly zooms on the signing hand, thereby eliminating the need for a hand detector.
+
+* [FSboard: Over 3 million characters of ASL fingerspelling collected via smartphones](https://arxiv.org/abs/2407.15806): this CVPR'25 paper introduces FSBoard, an American Sign Language fingerspelling dataset situated in a mobile text entry use case. At >3 million characters in length and >250 hours in duration, FSboard is the largest fingerspelling recognition dataset to date by a factor of >10x.
+
 
 ### Repository Content
 
@@ -19,28 +26,28 @@ This repository includes:
 
 * Source code of the Recurrent Visual Attention Network.
 
-* Evaluation code for ChicagoFSWild+ to reproduce the test accuracy.
+* Evaluation code for ChicagoFSWild+ and FSBoard to reproduce the test accuracy.
 
-* Pre-trained weights with a ResNet34 backbone.
+* Pre-trained weights with ResNet18 and ResNet34 backbones.
 
 * A Python application to practice your fingerspelling with a webcam.
 
 If you use it in your projects, please consider citing this repository (bibtex below).
 
+
 ## MiCT-RANet Architecture Overview
 
 As depicted below, the MiCT-RANet architecture combines a recurrent visual attention module with a MiCT-ResNet backbone.
-The 34 layers ResNet version is used with a stride reduced to 16 in order to obtain larger feature maps for applying visual attention. This is achieved by changing the stride of the first layer of the last block from 2 to 1.
-A total of five 3D convolutions are inserted along this backbone using residual connections to form so-called Mixed 3D/2D Convolutional Tubes. The depth of all 3D kernels is set to 5 to capture hand movements details along the temporal dimension.
+This backbone is a pre-trained ResNet with additional 3D convolutions inserted using residual connections to form so-called Mixed 3D/2D Convolutional Tubes.
 
 The recurrent visual attention network (RANet) uses additive attention (also called Bahdanau attention) in combination with an LSTM cell.
 The LSTM cell's hidden state and the CNN feature maps are jointly used to yield an attention map. This attention map reflects the importance of features at each spatial location for the recognition of signing sequences.
 The attention map is then weighted by the magnitude of the optical flow and re-normalized. The optical flow indicates the regions in motion within the image and provides a good attention prior for locating the signing hand.
-Given the small size of the features maps, it can be computed in real-time on CPU at low resolution without affecting accuracy.
+Given the small size of the features maps, the optical flows can be computed in real-time on the CPU (using Farneback's algorithm) at low resolution without affecting accuracy.
 
 ![MiCT-RANet Architecture](assets/MiCT-RANet_Wide.png)
 
-The training procedure produces a model skilled for a large range of camera zoom with stable accuracy. The CTCLoss is used at train time while beam search with a beam size of 5 is used for decoding at test time. No language model was used as it yielded no performance improvements.
+The training procedure produces a model skilled for a large range of camera zoom with stable accuracy. The CTCLoss is used at train time while beam search with a beam size of 5 is used for decoding at test time. 
 
 
 ## ChicagoFSWild Dataset
@@ -48,71 +55,66 @@ The training procedure produces a model skilled for a large range of camera zoom
 The [ChicagoFSWild](https://ttic.uchicago.edu/~klivescu/ChicagoFSWild.htm) dataset is the first collection of American Sign Language fingerspelling data naturally occurring in online videos (ie. "in the wild"). The collection consists of two data set releases, ChicagoFSWild and ChicagoFSWild+.
 Both contain short clips of fingerspelling sequences extracted from sign language videos crowd sourced from YouTube and Deaf social media.
 
-The ChicagoFSWild data set contains 7304 ASL fingerspelling sequences from 160 different signers, carefully annotated by students who have studied ASL. ChicagoFSWild+ contains 55,232 sequences signed by 260 different signers.
+The ChicagoFSWild dataset contains 7304 ASL fingerspelling sequences from 160 different signers, carefully annotated by students who have studied ASL. ChicagoFSWild+ contains 55,232 sequences signed by 260 different signers.
 The train, dev, and test splits were designed to obtain signer-independent subsets. The merged dataset contains respectively 303, 59 and 58 unique signers for each split. This means that the accuracy of models trained with these 3 splits is reflective of their performance with unknown signers under various conditions (eg. indoor, outdoor, studio recording, etc...).
+
+
+## FSBoard Dataset
+
+The FSBoard dataset contains 151K video sequences collected from 147 paid and consenting Deaf signers using Pixel 4A selfie cameras in a variety of environments. 
+Contrary to Chicago which was collected from social media, the signers were given phrases to record. These phrases are constructed with a variety of domains: MacKenzie phrases, URLs, addresses, phone numbers, and names. Therefore, sequences are not limited to characters from the alphabet, but also include numbers and special characters. The videos of this dataset have been made publicly available by Google and can be downloaded from [Kaggle](https://www.kaggle.com/datasets/googleai/fsboard). You will need 1.3TB of storage for the full dataset.
 
 
 ## Performance Analysis
 
-This section reports test results on the merged ChicagoFSWild and ChicagoFSWild+ test sets totalling 2583 samples.
-The models' letter accuracy are measured with the Levenshtein distance. With a **74.4% letter accuracy MiCT-RANet-34 leads by 19.5 points and delivers 229FPS throughput** using a TITAN RTX GPU and a Core i7 6700K CPU. A single CPU core is used to calculate low resolution optical flows in real-time using Farneback's algorithm.
-To fully appreciate the MiCT-RANet-34 performance, it is important to stress that the dataset is very challenging. Indeed human performance is only 86.1% and the inter-annotator agreement is about 94%. In fact many videos are noisy; they can be very compressed, or blurry, or have a too low frame rate to be fully recognizable even by human experts.
-This implies that the performance of MiCT-RANet relative to a human native signer is 86.4%.
+This section reports test results on the test sets totalling 2583 samples for ChicagoFS+, and 2583 for FSBoard alpha subset.
+The models' letter accuracy are measured with the Levenshtein distance. 
+Note that ChicagoFS+ is a very challenging dataset: human performance is only 86.1% and inter-annotator agreement is about 94%. 
+FSBoard, on the contrary, comes with 100% correct annotations due to its collection mechanism.
 
 
-| Architecture                | Parameters  | Letter accuracy |    FPS     |
-|-----------------------------|-------------|-----------------|------------|
-| Iterative-Visual-Attention  | xx.xM       | 62.3            |  **xxx**   |
-| MiCT-RANet-18               | xx.xM       | xx.x            |     xxx    |
-| MiCT-RANet-34               | 32.2M       | **74.4**        |     229    |
+| Architecture                | Parameters  | Input size | 3D kernels size | Dataset    | Letter accuracy | Note               |
+|-----------------------------|-------------|------------|-----------------|------------|-----------------|--------------------|
+| Iterative-Visual-Attention  | xx.xM       | 192x192    | Not applicable  | ChicagoFS+ | 62.3            |                    |
+| MiCT-RANet-34               | 32.2M       | 224x224    | 5x3x3           | ChicagoFS+ | 74.4            | V1 release in 2020 |
+| MiCT-RANet-18               | 69.1M       | 224x224    | 5x3x3           | ChicagoFS+ | **77.2**        | V2 update in 2025  |
+| MiCT-RANet-18               | 47.0M       | 224x224    | 3x3x3           | FSBoard    | 92.3            | Finetuning         |
+| MiCT-RANet-18               | 47.0M       | 224x224    | 3x3x3           | FSBoard    | 91.7            | Without finetuning |
+| MiCT-RANet-18               | 69.1M       | 224x224    | 5x3x3           | FSBoard    | 92.4            | Finetuning         |
+| MiCT-RANet-18               | 69.1M       | 256x256    | 5x3x3           | FSBoard    | **92.7**        | Finetuning         |
 
 
-Some details are missing in these tables. I intend to add them progressively. As shown below, the depth of the 3D kernels has a significant impact on the efficiency of the MiCT-RANet architecture. Harvesting 5 consecutive RGB input frames provides the best accuracy but impacts inference speed.
+Breakdown of errors for the best model evaluated on FSBoard test set (alpha subset): 
 
-| 3D kernels size   | Parameters  | Letter accuracy |    FPS    |
-|-------------------|-------------|-----------------|-----------|
-| 3x7x7             | xx.xM       | 73.0            |    xxx    |
-| 5x7x7             | 32.2M       | **74.4**        |    229    |
-
-
-The errors breakdown shows that the majority of errors are deletions. This is indicative, as already explained above, that many sequences may have too low frame rates for proper recognition of all signed letters.
-
-| MiCT-RANet-34  | Substitutions | Deletions | Insertions |
+|                | Substitutions | Deletions | Insertions |
 |----------------|---------------|-----------|------------|
-| Error count    |          1162 |      1803 |        448 |
-| Error rate     |          8.7% |     13.5% |       3.4% |
-| Error share    |         34.0% |     52.8% |      13.1% |
+| Error count    |           424 |       872 |       1256 |
+| Error rate     |          1.2% |      2.4% |       3.5% |
+| Error share    |         16.6% |     34.2% |      49.2% |
+
+The test set has 36355 characters, and out of the 2552 errors, 637 are inserted spaces (25.0%) and 349 are deleted spaces (13.7%).
 
 
-The full confusion matrix is pretty large, so I'm including only the top-10 of the mostly confused letter pairs.
+Top-10 of the mostly confused letter pairs:
 
 |     | letter1 | letter2 | count |
 |-----|---------|---------|-------|
-|  1  |    e    |    o    |  77   |
-|  2  |    i    |    y    |  55   |
-|  3  |    r    |    u    |  53   |
-|  4  |    a    |    s    |  34   |
-|  5  |    a    |    i    |  30   |
-|  6  |    e    |    s    |  22   |
-|  7  |    n    |    t    |  22   |
-|  8  |    o    |    s    |  21   |
-|  9  |    a    |    o    |  21   |
-| 10  |    m    |    n    |  20   |
+|  1  |    i    |    y    |  63   |
+|  2  |    e    |    o    |  27   |
+|  3  |    r    |    u    |  26   |
+|  4  |    a    |    s    |  22   |
+|  5  |    a    |    o    |  15   |
+|  6  |    n    |    t    |  12   |
+|  7  |  space  |    l    |   9   |
+|  8  |    a    |    y    |   9   |
+|  9  |  space  |    p    |   7   |
+| 10  |  space  |    n    |   7   |
 
 
-Regarding **word spaces** the model detects them only 15% of the time and deletes them around 74% of the time. However **there is no such thing as a space character in ASL** so it is no surprise that the model performs poorly on this detection.
-Signers can use different means to indicate a word separator: they can make a short pause, or move the hand towards the right and make a pause, but very often they do nothing and just rely on their interlocutor to decode the sequence correctly.
-After viewing some of those sequences, I find that many of them have no pause to indicate a word separator, but the annotators inserted one in the label to make it readable.
-This annotation rule is debatable, but at least this provide a likely explanation for the poor performance on the dataset. A language model cannot help with this dataset because fingerspelling is mostly used for out of vocabulary words.
+The next table shows the accuracy as a function of the number of frames per signed letter for model **MiCT-RANet-34** trained only on ChicagoFS+. 
+Performance increases monotonically with a plateau above 81% accuracy between 6 and 13 frames per letters.
+This result is important for the calibration of the spelling application, to obtain optimal performance.
 
-| Word spaces  | Correct | Deletion | Substitution |
-|--------------|---------|----------|--------------|
-| Count        |      69 |      340 |           49 |
-| Share        |   15.1% |    74.2% |        10.7% |
-
-
-The next table shows the accuracy as a function of the number of frames per signed letter, and we can observe that performance increases monotonically with a plateau above 81% accuracy between 6 and 13 frames per letters.
-Most modern hardware support video recording in 30 FPS. This corresponds to a usage range between 2.3 and 5 letters per second for best performance, which is realistic for experienced signers.
 
 | Frames per letter | Mean acc. | Samples |
 |-------------------|-----------|---------|
@@ -134,67 +136,92 @@ Most modern hardware support video recording in 30 FPS. This corresponds to a us
 
 
 ## Testing on Your Own
-I'm providing below the link to the pre-trained weights to easily reproduce the above results and run the fingerspelling practice application included in this repository. Note that releasing the training code is out of the scope of this repository for the time being.
+I'm providing below the link to the pre-trained weights to reproduce the above results and run the fingerspelling practice application included in this repository. Note that releasing the training code is out of the scope of this repository for the time being. A GPU with 16GB of RAM is needed to run these tests.
 
 
-| Architecture                                                                    | Parameters  | Letter accuracy |
-|---------------------------------------------------------------------------------|-------------|-----------------|
-| [MiCT-RANet34](https://drive.proton.me/urls/3QC326KREG#owB6r4GkFdbN)            | 32.2M       | **74.4**        |
+| Architecture                                                                                  | Parameters  | Letter accuracy |
+|-----------------------------------------------------------------------------------------------|-------------|-----------------|
+| [MiCT-RANet34](https://drive.proton.me/urls/3QC326KREG#owB6r4GkFdbN)                          | 32.2M       | 74.4            |
+| [MiCT-RANet18-ChicagoFS_Large_69m_224p](https://drive.proton.me/urls/PG8100AET8#JPOcE7ySa8jg) | 69.0M       | 77.2            |
+| [MiCT-RANet18-FSBoard_Medium_47m_224p](https://drive.proton.me/urls/S9GVDY2340#K4gfcHKRdQ2i)  | 47.0M       | 92.3            |
+| [MiCT-RANet18-FSBoard_Large_69m_256p](https://drive.proton.me/urls/DD3WQPJGH8#wZAS2LZHAnvl)   | 69.0M       | **92.7**        |
 
-You can test the model directly from the command line as such:
+You can test the model directly from the command line as shown below.
+
+For the new model released in 2025 use one of these:
 
 ```
-$ python test.py --conf conf.ini
+$ python test.py --conf conf_v2.ini --scale 2 --model_version=v2
+[...]
+
+$ python test.py --conf conf_fsboard_medium_224p.ini --model_version=v2
+[...]
+
+$ python test.py --conf conf_fsboard_large_256p.ini --model_version=v2
+Compute device: cuda
+2614 test samples
+Loading weights from: data/MiCT-RANet18_FSBoard_large_256p.pth
+Total number of encoder parameters: 69133744
+Mean sample running time: 0.686 sec
+239.6 FPS
+Letter accuracy: 92.74% @ scale 2
+```
+
+For the older model released in 2020 use:
+```
+$ python test.py --conf conf_v1.ini --scale 2 --model_version=v1
 Compute device: cuda
 2583 test samples
 Loading weights from: data/MiCT-RANet34.pth
 Total number of encoder parameters: 32164128
-Mean sample running time: 0.123 sec
-229.2 FPS
-Letter accuracy: 74.38% @ scale 2
+Mean sample running time: 0.094 sec
+298.1 FPS
+Letter accuracy: 74.39% @ scale 2
 ```
 
+Note that the `scale` parameter is irrelevant and ignored for FSBoard.
 
 ## Fingerspelling Practice App
 
-A real-time fingerspelling interpreter is included in this repository. You can use it to practice your fingerspelling and evaluate MiCT-RANet's capabilities using a webcam or a smartphone connected to your computer.
-Before trying the application, I recommend that you first read the performance analysis described above, so that you understand what to expect and where the calibration comes from.
-The quality of your experience will depend on your hardware performance, your ability to calibrate the application using the provided parameters, and your fingerspelling skills.
+A real-time fingerspelling interpreter is included in this repository. You can use it to practice your fingerspelling and evaluate MiCT-RANet's capabilities using a webcam or a smartphone connected to your computer. The quality of your experience will depend on your hardware performance, your ability to calibrate the application using the provided parameters, and your fingerspelling skills. 
 
 **This application is provided as-is. It is not a product ! I will not provide support and may not respond to troubleshooting requests.**
 
 ![Fingerspelling Practice](assets/coronacircus.gif)
 
-I cannot advise what are the minimum hardware requirements. These are my measured frame rates as a function of the number of input frames (see optional argument `frames_window`) used to make a frame prediction. The CPU is a Core i7 6700K.
-The 2080 Ti and Titan RTX have very close performance. The highest GPU throughput is obtained with batches of 21 frames: the Titan can process 12.1 batches per second, or the equivalent of 254 FPS. A 3070 or above should do even better.
+I cannot advise what are the minimum hardware requirements. The model consumes only 2GB of RAM on GPU and runs smootly on a quad-core CPU.
 
-| Video card \ window  |  9 frames  |  13 frames  |  17 frames  |  21 frames  |
-|----------------------|------------|-------------|-------------|-------------|
-| NVIDIA 2080 Ti       |    17.9    |     14.8    |     13.0    |     11.8    |
-| NVIDIA Titan RTX     |    19.5    |     16.5    |     13.3    |     12.1    |
 
 ### Usage and Calibration Tips
-* **The application predicts the signed letter when you transition to the next one.** This means that it is useless to hold your hand and wait for the detection because nothing will happen until you start moving your fingers to make the next letter. It can be confusing at the beginning and takes some time to get used to the lag.
-* **It is desirable to sign fast because the model was trained with and for expert signers.** The dataset has 6 frames per letter on average. There is no need to aim for 30FPS or even 24 unless you are an expert signer who can sign 4 letters per second.
-* **Be patient if you are learning fingerspelling** as the model was not made to be used by beginners. The application can still do okay if you sign slowly, but you will get more unexpected letter insertions. For example, if you transition from letter B to O, the model might insert a C in between and there is nothing wrong with that. It means that you need to sign faster or reduce the frame rate. Use the `skip_frames` optional parameter to down sample your camera’s frame rate.
-* **The model was not trained to predict long English sentences.** The dataset has only 5.1 letters per video sample on average and ASL signers use fingerspelling for out of vocabulary words, so the dataset is the opposite to that purpose.
-* **All letters have gesture variations** and the model does not recognize them equally well. You may have to adapt your signing style to the application's capabilities to obtain the desired results.
+* **The application predicts the signed letter when you transition to the next one.** This means that it is useless to hold your hand and wait for the detection because nothing will happen until you start moving your fingers to sign the next letter.
+* **It is desirable to sign fast because the model was trained with and for expert signers.** You can adjust the target FPS to your skill.
+* **Be patient if you are learning fingerspelling** as the model was not made to be used by beginners. The application can still do okay if you sign slowly, but you will get more unexpected letter insertions.
 * **Enable auto-focus and block exposure** and other automatic image adjustments as it may degrade performance by adding noise to the optical flow.
 * **Position yourself at the right distance from the camera:** check the animations on this page for instructions and use your camera’s built-in zoom if needed.
-* **Lightning must not be neglected:** your hand and face should not be casting shadows. A direct light facing you will help and three-point lightning is the ideal setup.
+* **Lightning must not be neglected:** your hand and face should not be casting shadows.
 
 
 ### Running the Application
-To start the application with the default parameters simply run the following command:
+To start the application with the default parameters simply run one of the following commands:
 
+Use only the medium size model with the webcam application. Other models have 3D kernel sizes of 5x5x5, and are not suitable due to their too large receptive field.
 ```
-$ python webcam.py
+$ python webcam.py --conf conf_fsboard_medium_224p.ini --frames_window=25 --min_gpu_buffered_frames=3 --target_fps=24 --model_version=v2
+```
+
+You can still run the old model with:
+```
+$ python webcam.py --conf conf_v1.ini --frames_window=17 --min_gpu_buffered_frames=1 --target_fps=12 --model_version=v1
 ```
 
 **The main optional arguments are:**
-* **frames_window:** the number of frames used to make each prediction. The possible values are 9, 13, 17 and 21. Larger windows provide higher performance but increase the lag and require better signing skills: if you make a very small pause with a large window, the model may insert a space you've not asked for.
+* **frames_window:** the number of frames used to make each prediction. The receptive fields of model V1 and V2 are repectively 21 and 41 frames but a smaller window provides good results too. Higher values increase the lag.
 * **flows_window:** the number of optical flows used to calculate an attention prior map. The default value is 5 and should not be changed.
-* **skip_frames:** controls the down-sampling factor applied to the webcam. For example using a value of 3 on a 30FPS camera will reduce the frame rate to 10. Beginners may get started with 10 or 12FPS. More advanced users may want to target 15 to 18FPS. The higher the frame rate, the more invalid letter insertions. The default value is 2.
+* **min_gpu_buffered_frames:** the minimum number of frames needed in the buffer before running GPU inference. Higher values reduce GPU load but increase the lag.
+* **target_fps:** the target FPS of the application. 
+* **benchmark:** runs a 60 seconds application performance benchmark and prints the results.
+* **compile:** compiling the model with torch significantly slows down the start of the application for a modest GPU speed improvement (~5%). Use only if the benchmark reveals that your GPU is the bottleneck.
+* **model_version:** the version of the model, v1 for the former version or v2 for the newest.
 
 **Commands**
 * Press the `Delete` key to clear all letters.
@@ -204,36 +231,19 @@ $ python webcam.py
 * Press the `r` key to start or stop recording. Each recording sequence will be saved in a new folder.
 * Press the `Escape`, `q` or `x` key to exit the application.
 
-
-## Future Work
-
-* **Optimizations:** it is possible to get higher frame rates at the cost of an increased lag.
-* **NLP enhancements:** the experience could benefit from a spell-checker and a language model for signing full English phrases.
-* **Noise reduction:** apply methods to identify noisy labels and either correct them or progressively remove the noisy samples during training.
-* **Increase model complexity:** add more 3D kernels and/or pseudo-3D kernels, use deeper 3D kernels capable of processing 7 images or more, bi-directional LSTM.
-
-
 ## Requirements
-CUDA 10.1, Python 3.6, Torch 1.4, and OpenCV 4.1.1.
+CUDA 11.8, Python 3.10, PyTorch 2.2, and OpenCV 4.6.10
 
-The following Conda commands worked for me to setup the environment:
-
-```
-conda create -n torchcv python=3.6
-conda install -c pytorch pytorch torchvision cudatoolkit=10.1 numpy scipy pandas matplotlib cython unidecode
-conda install -c conda-forge opencv=4.1.1
-```
-
-You need a **high quality camera** because low quality hardware produce noisy pixels that affect the quality of the optical flow. Most smartphones have high quality video recording capabilities. To use an Android phone as webcam you can install **DroidCamX Pro** to transfer the video stream to your PC using a USB cable. More information can be found by following this [link](http://www.dev47apps.com/).
+A webcam or smartphone. To use an Android phone as webcam you can use **DroidCamX Pro**. More information can be found by following this [link](http://www.dev47apps.com/).
 
 
 ## Citation
 Use this bibtex to cite this repository:
 ```
-@misc{fmahoudeau_mictranet_2020,
+@misc{fmahoudeau_mictranet_2025,
   title={MiCT-RANet for real-time ASL fingerspelling video recognition},
   author={Florent Mahoudeau},
-  year={2020},
+  year={2025},
   publisher={GitHub},
   journal={GitHub repository},
   howpublished={\url{https://github.com/fmahoudeau/MiCT-RANet-ASL-FingerSpelling}},
